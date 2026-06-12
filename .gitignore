@@ -1,0 +1,21 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+*.sqlite3
+
+# Entorno
+.env
+*.env.local
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Estáticos compilados (Django collectstatic)
+backend/staticfiles/
+
+# Editor / SO
+.vscode/
+.DS_Store
+Thumbs.db

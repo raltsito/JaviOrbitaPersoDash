@@ -15,6 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
+# Build de Vite (frontend/dist) — no existe en dev si no se corrió `npm run build`
+FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
+
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key")
 
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
@@ -61,7 +64,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"] + ([FRONTEND_DIST] if FRONTEND_DIST.is_dir() else []),
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -111,6 +114,8 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_DIRS = [FRONTEND_DIST] if FRONTEND_DIST.is_dir() else []
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},

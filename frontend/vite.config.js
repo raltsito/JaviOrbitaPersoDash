@@ -2,7 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // En producción Django/WhiteNoise sirve los assets bajo /static/
+  base: mode === 'production' ? '/static/' : '/',
   plugins: [react()],
   server: {
     proxy: {
@@ -11,4 +13,4 @@ export default defineConfig({
       '/api': 'http://localhost:8001',
     },
   },
-})
+}))

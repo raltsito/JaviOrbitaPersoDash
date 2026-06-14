@@ -2,7 +2,7 @@
 
 Plan de desarrollo por sprints. El prototipo de referencia (diseño y comportamiento aprobado) vive en `Javier/` y es la fuente de verdad visual: shell con sidebar (`app.jsx`), componentes base (`components.jsx`), y las vistas Hoy, Análisis, Hábitos, Conexiones, Objetivos y Ajustes.
 
-> **Estado (2026-06-13):** Sprints 0, 1, 2, 3, 4 y 5 completados. **Siguiente: Sprint 6 — deploy en Railway y cierre.**
+> **Estado (2026-06-13):** Sprints 0-5 completados. **Sprint 6 en curso** — código de deploy listo y verificado en local; proyecto Railway "Orbita" creado; falta provisionar Postgres, desplegar el servicio web (`railway up`) y configurar dominio/variables de entorno. Ver detalle al final de la sección Sprint 6.
 
 ## Decisiones de arquitectura
 
@@ -125,13 +125,26 @@ Racha: días consecutivos (hasta hoy) con al menos un registro de actividad/háb
 
 **Objetivo:** producción estable en Railway.
 
+- [x] ~~Build del frontend integrado al deploy: `vite build` → estáticos servidos por Django con WhiteNoise (un solo servicio web).~~ Código listo y verificado en local: `frontend/vite.config.js` (`base: '/static/'` en producción), `backend/core/settings.py` (`FRONTEND_DIST` agregado a `STATICFILES_DIRS` y `TEMPLATES[0]["DIRS"]`, con `is_dir()` para no romper dev), `backend/core/urls.py` (catch-all `re_path` con `TemplateView` para servir la SPA, después de `admin/`/`api/...`). `npm run build`, `collectstatic` ("158 static files copied, 454 post-processed"), `manage.py check` y `manage.py test` (15/15) en verde; `runserver` probado con curl (`/`, `/static/assets/...`, `/api/health/`, `/admin/login/`).
+- [x] ~~`gunicorn` + configuración de Railway; migraciones automáticas en el deploy.~~ `Dockerfile` multi-stage en la raíz del repo (stage `frontend` con `node:22-slim` corre `npm run build`; stage final `python:3.13-slim` instala `requirements.txt`, copia `backend/` + `frontend/dist`, corre `collectstatic` en build; `CMD` ejecuta `migrate --noinput && gunicorn core.wsgi:application`). `.dockerignore` y `railway.json` (`healthcheckPath: /api/health/`) creados en la raíz.
 - [ ] Servicio PostgreSQL en Railway + variables de entorno del backend.
-- [ ] Build del frontend integrado al deploy: `vite build` → estáticos servidos por Django con WhiteNoise (un solo servicio web).
-- [ ] `gunicorn` + `Procfile`/configuración de Railway; migraciones automáticas en el deploy.
-- [ ] `DEBUG=False`, `ALLOWED_HOSTS`, cookies seguras, HTTPS.
+- [ ] `DEBUG=False`, `ALLOWED_HOSTS`, cookies seguras, HTTPS (configuración vía variables de entorno en Railway — el código ya las soporta desde Sprint 0).
 - [ ] Crear el usuario real de Javier y cargar sus datos iniciales.
 - [ ] Smoke test en producción: registro, login, registrar un día completo, verificar gráficas.
 - [ ] README con instrucciones de desarrollo y deploy.
+
+### Estado de la infraestructura Railway (en curso, 2026-06-13) — dónde quedamos
+
+- Se creó un proyecto Railway **dedicado para Órbita: "Orbita"** (workspace "raltsito's Projects"), entorno `production`. El directorio del repo ya está linkeado a él (`railway status` → `Project: Orbita`, `Service: None` todavía).
+  - Se descartó el proyecto preexistente `DashboardPersonalJavier` (al que se había linkeado por error inicialmente) porque ya alberga otro servicio en producción (`DashboardLiquid`, deploy de ARUOSAL con dominio propio `dashboardliquid-production.up.railway.app` y su propio Postgres con datos reales) — no relacionado con Órbita.
+  - **Limpieza pendiente (manual, baja prioridad):** en `DashboardPersonalJavier` quedó un servicio Postgres vacío llamado `Postgres-nLe_` (creado antes de cambiar de proyecto). La CLI de Railway no permite borrar un servicio individual (solo proyectos completos); hay que borrarlo desde el dashboard web cuando se tenga oportunidad. No afecta a Órbita ni a DashboardLiquid.
+- **Próximo paso inmediato** (proyecto "Orbita" ya linkeado):
+  1. `railway add -d postgres` — provisionar Postgres en "Orbita".
+  2. `railway up` — desplegar el servicio web desde el `Dockerfile` (raíz del repo).
+  3. `railway domain` — generar dominio público `*.up.railway.app`.
+  4. `railway variables --set ...` en el servicio web: `SECRET_KEY` (nueva, generada con `secrets.token_urlsafe`), `DEBUG=False`, `ALLOWED_HOSTS=${{RAILWAY_PUBLIC_DOMAIN}}`, `CSRF_TRUSTED_ORIGINS=https://${{RAILWAY_PUBLIC_DOMAIN}}`, `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `TIME_ZONE=America/Mexico_City`.
+  5. Re-deploy si hace falta, luego smoke test (`/api/health/`, `/`, registro/login real).
+  - Plan detallado completo en `C:\Users\carlo\.claude\plans\deep-sleeping-key.md` (sigue vigente, solo cambia el proyecto Railway destino).
 
 **Entregable:** URL pública en Railway funcionando con el usuario de Javier.
 

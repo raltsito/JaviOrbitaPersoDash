@@ -2,7 +2,7 @@
 
 Plan de desarrollo por sprints. El prototipo de referencia (diseño y comportamiento aprobado) vive en `Javier/` y es la fuente de verdad visual: shell con sidebar (`app.jsx`), componentes base (`components.jsx`), y las vistas Hoy, Análisis, Hábitos, Conexiones, Objetivos y Ajustes.
 
-> **Estado (2026-06-12):** Sprints 0, 1 y 2 completados. **Siguiente: Sprint 3 — migración del frontend a Vite** (componentes, shell, 6 vistas contra la API y rediseño de Objetivos).
+> **Estado (2026-06-13):** Sprints 0, 1, 2, 3, 4 y 5 completados. **Siguiente: Sprint 6 — deploy en Railway y cierre.**
 
 ## Decisiones de arquitectura
 
@@ -75,47 +75,51 @@ Racha: días consecutivos (hasta hoy) con al menos un registro de actividad/háb
 
 **Entregable:** API navegable en DRF con datos de prueba; colección de endpoints documentada en el README. ✔
 
-## Sprint 3 — Migración del frontend a Vite
+## Sprint 3 — Migración del frontend a Vite ✔ COMPLETADO 2026-06-13
 
 **Objetivo:** el prototipo completo corriendo como SPA real, todavía contra la API.
 
-- [ ] Migrar `components.jsx` (Card, Icon, Check, Ring, BarChart, LineChart, tone…) a componentes con imports.
-- [ ] Migrar el shell de `app.jsx`: sidebar colapsable, topbar, tema claro/oscuro, navegación (React Router o estado de ruta como ahora).
-- [ ] Migrar las 6 vistas (`views_*.jsx`) manteniendo el diseño tal cual, **excepto Objetivos**, que se rediseña (ver abajo).
-- [ ] **Rediseño de "Objetivos":** se elimina el mapa orbital SVG y se reemplaza por un grid de 4 tarjetas por categoría (Cuerpo, Mente, Trabajo, Social), cada una con anillo de progreso medio (`Ring`) y la lista de sus objetivos con barras de progreso. Filtros por periodo (Todas/Diario/Semanal/Mes/Año) arriba.
-- [ ] Capa de API (`src/api.js`): cliente fetch con manejo de token/sesión y errores.
-- [ ] Estado global: reemplazar `ORB.load/save` (localStorage) por datos del backend; localStorage queda solo para preferencias de UI (sidebar colapsado, tweaks).
-- [ ] El panel de Tweaks (acento, densidad, tema espacial) persiste en `Perfil`.
+- [x] ~~Migrar `components.jsx` (Card, Icon, Check, Ring, BarChart, LineChart, tone…) a componentes con imports.~~
+- [x] ~~Migrar el shell de `app.jsx`: sidebar colapsable, topbar, tema claro/oscuro, navegación (estado de ruta + `window.__nav` para enlaces cruzados).~~
+- [x] ~~Migrar las 6 vistas (`views_*.jsx`) manteniendo el diseño tal cual, **excepto Objetivos**, que se rediseña (ver abajo). La vista Hoy quedó compuesta en 8 subcomponentes (`src/views/hoy/`) que consumen su propio slice de la API.~~
+- [x] ~~**Rediseño de "Objetivos":** se elimina el mapa orbital SVG y se reemplaza por un grid de 4 tarjetas por categoría (Cuerpo, Mente, Trabajo, Social), cada una con anillo de progreso medio (`Ring`) y la lista de sus objetivos con barras de progreso. Filtros por periodo (Todas/Diario/Semanal/Mes/Año) arriba.~~
+- [x] ~~Capa de API (`src/api.js`): cliente fetch con manejo de sesión/CSRF y errores, con endpoints para todas las entidades del dominio.~~
+- [x] ~~Estado global: `ORB.load/save` (localStorage) reemplazado por datos del backend; localStorage queda solo para preferencias de UI (sidebar colapsado).~~
+- [x] ~~El panel de Tweaks (acento, densidad, tema espacial) pasa a la vista Ajustes y persiste en `Perfil` vía `/api/perfil/`.~~
+- [x] ~~Se eliminaron dos elementos del prototipo sin equivalente real: el segmentado "Objetivo diario/semanal" decorativo de Hoy y el botón "Compartir como imagen" (decisión de producto #3).~~
+- [x] ~~Verificación end-to-end: `vite build` y `eslint .` en verde; servidores Vite (:5173) y Django (:8001) levantados y probados contra la API real (perfil, hábitos, objetivos, frase, conexiones, análisis, resumen, actividades, registros, accesos) con un usuario de prueba.~~
 
-**Entregable:** la app completa funciona contra la API en local; localStorage ya no guarda datos de negocio.
+**Entregable:** la app completa funciona contra la API en local; localStorage ya no guarda datos de negocio. ✔
 
-## Sprint 4 — Lógica diaria e historial
+## Sprint 4 — Lógica diaria e historial ✔ COMPLETADO 2026-06-13
 
 **Objetivo:** el comportamiento "por fecha" funcionando de punta a punta.
 
-- [ ] Vista Hoy: al entrar, carga la agenda de la fecha actual; cada día empieza vacío y el usuario escribe sus actividades (sin copiar el día anterior).
-- [ ] **Planificación a futuro:** selector de fecha en la agenda para navegar a cualquier día (futuro o pasado) y agregar/editar actividades — p. ej. hoy puedo anotar algo para el sábado o para dentro de dos meses. Desde el calendario del mes, clic en un día abre su agenda.
-- [ ] Tracker de hábitos escribe `RegistroHabito` de hoy; los steppers y botones sí/no hacen upsert. Cada día el tracker arranca en cero (los valores anteriores quedan en el historial). El tracker solo registra el día actual (no fechas futuras).
-- [ ] Vista semana: combina `BloqueSemana` (plan recurrente) con lo real registrado y lo ya planificado a futuro.
-- [ ] Vista mes: calendario con conteo real de actividades por día (reemplaza el `busy` hardcodeado), incluyendo las planificadas a futuro; cada día es clicable para abrir su agenda.
-- [ ] Vista año: actividades reales por mes.
-- [ ] Racha calculada por el backend y mostrada en sidebar/KPIs.
-- [ ] Vistas Análisis y Hábitos consumen las series reales del Sprint 2 (semáforo verde/ámbar/rojo sobre los últimos 7 días reales).
-- [ ] Conexiones: "último contacto" pasa a ser fecha real; el check semanal se reinicia cada lunes.
+- [x] ~~Vista Hoy: al entrar, carga la agenda de la fecha actual; cada día empieza vacío y el usuario escribe sus actividades (sin copiar el día anterior).~~ (ya implementado en Sprint 3, vía `AgendaDia` + `/api/actividades/?fecha=`)
+- [x] ~~**Planificación a futuro:** selector de fecha en la agenda para navegar a cualquier día (futuro o pasado) y agregar/editar actividades — p. ej. hoy puedo anotar algo para el sábado o para dentro de dos meses. Desde el calendario del mes, clic en un día abre su agenda.~~ (ya implementado en Sprint 3, `AgendaMes` con `onSelectDay`)
+- [x] ~~Tracker de hábitos escribe `RegistroHabito` de hoy; los steppers y botones sí/no hacen upsert. Cada día el tracker arranca en cero (los valores anteriores quedan en el historial). El tracker solo registra el día actual (no fechas futuras).~~ (ya implementado en Sprint 3, `HabitTracker`)
+- [x] ~~Vista semana: combina `BloqueSemana` (plan recurrente) con lo real registrado y lo ya planificado a futuro.~~ — **nuevo en Sprint 4:** `AgendaSemana` ahora combina `bloques.list()` con `actividades.list({desde, hasta})` de la semana (lunes-domingo vía `inicioSemana`), muestra hora + estado `done` de cada actividad, y cada día es clicable (`onSelectDay`) para abrir su agenda diaria.
+- [x] ~~Vista mes: calendario con conteo real de actividades por día (reemplaza el `busy` hardcodeado), incluyendo las planificadas a futuro; cada día es clicable para abrir su agenda.~~ (ya implementado en Sprint 3, `AgendaMes`)
+- [x] ~~Vista año: actividades reales por mes.~~ (ya implementado en Sprint 3, `AgendaAno` + `/api/analisis/`)
+- [x] ~~Racha calculada por el backend y mostrada en sidebar/KPIs.~~ (ya implementado en Sprint 2/3, `calcular_racha` + `Shell.jsx`)
+- [x] ~~Vistas Análisis y Hábitos consumen las series reales del Sprint 2 (semáforo verde/ámbar/rojo sobre los últimos 7 días reales).~~ (ya implementado en Sprint 3)
+- [x] ~~Conexiones: "último contacto" pasa a ser fecha real; el check semanal se reinicia cada lunes.~~ — **nuevo en Sprint 4:** se elimina el campo almacenado `contactado_semana` (migración `0003`); el serializer lo calcula con `SerializerMethodField` (`ultimo_contacto >= lunes de esta semana`), y el toggle del frontend hace PATCH de `ultimo_contacto` (hoy o `null`).
+- [x] ~~Verificación end-to-end: `vite build` y `eslint .` en verde; migración aplicada; agenda semanal (bloques + actividades reales/futuras) y cómputo de `contactado_semana` (hoy, reseteo, semana pasada) probados contra la API real con un usuario de prueba.~~
 
-**Entregable:** usar la app varios días seguidos genera historial visible en Análisis y Hábitos.
+**Entregable:** usar la app varios días seguidos genera historial visible en Análisis y Hábitos. ✔
 
-## Sprint 5 — Ajustes, pulido y extras del prototipo
+## Sprint 5 — Ajustes, pulido y extras del prototipo ✔ COMPLETADO 2026-06-13
 
 **Objetivo:** paridad total con el prototipo + detalles pendientes.
 
-- [ ] Vista Ajustes completa: tema, edición de objetivos y hábitos (incluye crear/desactivar hábitos), frase del mes, y "restablecer datos" adaptado (borra historial del usuario con confirmación).
-- [ ] Accesos rápidos editables (hoy hardcodeados en `LAUNCHERS`): CRUD por usuario con modal de personalización — selector de icono (set de iconos del prototipo), nombre y URL.
-- [ ] Quitar el botón "Compartir como imagen" de la agenda (decisión confirmada). Imprimir agenda se mantiene (`window.print` con estilos de impresión).
-- [ ] Estados vacíos, loaders y manejo de errores de red en todas las vistas.
-- [ ] Responsive: revisar móvil (sidebar overlay ya existe en el prototipo) en las 6 vistas, en especial las tarjetas de Objetivos y la tabla de agenda.
+- [x] ~~Vista Ajustes completa: tema, edición de objetivos y hábitos (incluye crear/desactivar hábitos), frase del mes, y "restablecer datos" adaptado (borra historial del usuario con confirmación).~~ Nuevo endpoint `/api/restablecer/` (borra `ActividadAgenda`, `RegistroHabito` y `Autocuidado` del usuario; preserva hábitos, objetivos, bloques, conexiones, accesos, perfil y frase) + card "Datos" en Ajustes con confirmación.
+- [x] ~~Accesos rápidos editables (hoy hardcodeados en `LAUNCHERS`): CRUD por usuario con modal de personalización — selector de icono (set de iconos del prototipo), nombre y URL.~~ `hoy/Accesos.jsx` con modal (`Modal.jsx`), `icon-picker` de 16 iconos y color picker; CRUD completo contra `/api/accesos/`.
+- [x] ~~Quitar el botón "Compartir como imagen" de la agenda (decisión confirmada). Imprimir agenda se mantiene (`window.print` con estilos de impresión).~~ (ya satisfecho en Sprint 3)
+- [x] ~~Estados vacíos, loaders y manejo de errores de red en todas las vistas.~~ Componente `ErrorMsg` (con botón "Reintentar") + clase `.empty.error`, aplicado a las 6 vistas principales y a los 8 subcomponentes de Hoy/agenda.
+- [x] ~~Responsive: revisar móvil (sidebar overlay ya existe en el prototipo) en las 6 vistas, en especial las tarjetas de Objetivos y la tabla de agenda.~~ Grids a 1 columna en `@max-width:880px` (2 columnas para KPIs de Análisis en `@max-width:600px`); tablas/grids de agenda envueltas en `.agenda-scroll` con scroll horizontal.
+- [x] ~~Verificación end-to-end: `vite build` y `eslint .` en verde; servidores Vite (:5173) y Django (:8001) levantados y probados contra la API real (CRUD de accesos, crear/desactivar hábito, editar frase del mes, `/api/restablecer/` con datos reales) con un usuario de prueba.~~
 
-**Entregable:** demo completa lista para revisión de Javier.
+**Entregable:** demo completa lista para revisión de Javier. ✔
 
 ## Sprint 6 — Deploy en Railway y cierre
 

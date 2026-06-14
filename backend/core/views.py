@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from agenda.models import ActividadAgenda
+from agenda.models import ActividadAgenda, Autocuidado
 from habitos.models import Habito, RegistroHabito
 
 
@@ -120,3 +120,15 @@ def analisis(request):
         "pct_actividades_mes": pct_mes,
         "hist_habitos": hist_habitos,
     })
+
+
+@api_view(["POST"])
+def restablecer(request):
+    """Borra el historial del usuario (agenda, registros de hábitos y
+    autocuidado). No toca configuración: hábitos, objetivos, bloques,
+    conexiones, accesos rápidos, perfil ni frase del mes."""
+    usuario = request.user
+    actividades, _ = ActividadAgenda.objects.filter(usuario=usuario).delete()
+    registros, _ = RegistroHabito.objects.filter(habito__usuario=usuario).delete()
+    autocuidados, _ = Autocuidado.objects.filter(usuario=usuario).delete()
+    return Response({"actividades": actividades, "registros": registros, "autocuidados": autocuidados})

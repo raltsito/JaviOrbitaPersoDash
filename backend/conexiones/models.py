@@ -8,8 +8,6 @@ class Conexion(models.Model):
     relacion = models.CharField(max_length=60, blank=True, default="")
     notas = models.CharField(max_length=300, blank=True, default="")
     ultimo_contacto = models.DateField(null=True, blank=True)
-    # Marcado manualmente; se reinicia cada lunes (Sprint 4)
-    contactado_semana = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["id"]

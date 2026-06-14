@@ -216,12 +216,12 @@ html[data-theme="oscuro"] .seg button.on { color: var(--text); background: var(-
 .checkbox svg { opacity: 0; transform: scale(.5); transition: all .18s; }
 .checkbox.on svg { opacity: 1; transform: scale(1); }
 
-input.inp, textarea.inp {
+input.inp, textarea.inp, select.inp {
   width: 100%; background: var(--surface-2); border: 1px solid transparent;
   color: var(--text); border-radius: 9px; padding: 8px 10px; font-size: 13.5px;
   transition: all .14s; resize: none;
 }
-input.inp:focus, textarea.inp:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+input.inp:focus, textarea.inp:focus, select.inp:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
 input.inp::placeholder, textarea.inp::placeholder { color: var(--faint); }
 
 /* ===================== AGENDA TABLA ===================== */
@@ -295,6 +295,7 @@ input.inp::placeholder, textarea.inp::placeholder { color: var(--faint); }
 .frase .a { color: var(--accent); font-weight: 600; margin-top: 14px; }
 
 .empty { text-align: center; color: var(--muted); padding: 30px; font-size: 13.5px; }
+.empty.error { color: var(--red); }
 
 /* responsive */
 @media (max-width: 1080px) { .habit-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -339,3 +340,72 @@ input.inp::placeholder, textarea.inp::placeholder { color: var(--faint); }
 /* tema espacial: Ã³rbitas decorativas en topbar/frase (toggle via body.space) */
 .orbit-deco { display: none; }
 body.space .orbit-deco { display: block; }
+
+/* ===================== MODAL ===================== */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(0,0,0,.45);
+  display: grid; place-items: center;
+  padding: 20px;
+}
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); width: 100%; max-width: 480px; max-height: 86vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-h { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.modal-h h2 { font-size: 16px; }
+.modal-body { padding: 18px 22px; overflow-y: auto; }
+
+/* ===================== ICON PICKER ===================== */
+.icon-picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.icon-picker button {
+  aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--muted); display: grid; place-items: center; transition: all .14s;
+}
+.icon-picker button:hover { color: var(--text); border-color: var(--border-strong); }
+.icon-picker button.on { background: var(--accent-tint); border-color: var(--accent); color: var(--accent); }
+
+/* ===================== RESPONSIVE: VISTAS ===================== */
+@media (max-width: 880px) {
+  .card-h { flex-wrap: wrap; row-gap: 8px; }
+
+  .resumen-grid,
+  .obj-accesos-grid,
+  .objetivos-grid,
+  .habitos-grid,
+  .habitos-resumen-grid,
+  .conexiones-kpi-grid,
+  .analisis-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .analisis-kpi-grid { grid-template-columns: repeat(2,1fr) !important; }
+
+  .conexion-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .conexion-row > .pill { align-self: flex-start; }
+  .conexion-row > .icon-btn { align-self: flex-end; }
+
+  .objetivo-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  .objetivo-row input.inp { flex: 1 1 100% !important; }
+
+  /* tablas y grids de agenda: scroll horizontal en vez de comprimirse */
+  .agenda-scroll { overflow-x: auto; padding-bottom: 4px; }
+  .agenda-scroll .agenda { min-width: 600px; }
+  .agenda-scroll .agenda-week-grid { min-width: 760px; }
+  .agenda-scroll .agenda-month-grid { min-width: 520px; }
+  .agenda-scroll .agenda-year-grid { min-width: 640px; }
+}
+
+@media (max-width: 600px) {
+  .habit-grid { grid-template-columns: 1fr; }
+  .analisis-kpi-grid { grid-template-columns: 1fr !important; }
+}

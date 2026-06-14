@@ -25,4 +25,5 @@ urlpatterns = [
     path("frase/", FraseMesView.as_view()),
     path("resumen/hoy/", views.resumen_hoy),
     path("analisis/", views.analisis),
+    path("restablecer/", views.restablecer),
 ] + router.urls

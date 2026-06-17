@@ -19,4 +19,5 @@ COPY --from=frontend /app/frontend/dist /app/frontend/dist
 
 RUN python manage.py collectstatic --noinput
 
-CMD sh -c "python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000}"
+EXPOSE 8000
+CMD ["sh", "-c", "timeout 25 python manage.py migrate --noinput 2>&1; exec gunicorn core.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120 --access-logfile -"]

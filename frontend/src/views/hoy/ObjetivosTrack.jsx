@@ -23,7 +23,7 @@ export default function ObjetivosTrack() {
     const o = items.find((x) => x.id === id)
     const progreso = Math.max(0, Math.min(100, o.progreso + dir * 10))
     setItems((it) => it.map((x) => (x.id === id ? { ...x, progreso } : x)))
-    objetivos.update(id, { progreso })
+    objetivos.update(id, { progreso }).catch(() => cargar())
   }
 
   return (

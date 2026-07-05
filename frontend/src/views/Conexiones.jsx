@@ -31,20 +31,20 @@ export default function VistaConexiones() {
   if (!items) return <div className="empty">Cargando…</div>
 
   const upd = (id, f, v) => setItems((s) => s.map((c) => (c.id === id ? { ...c, [f]: v } : c)))
-  const guardar = (id, f, v) => conexiones.update(id, { [f]: v }).catch(() => {})
+  const guardar = (id, f, v) => conexiones.update(id, { [f]: v }).catch(() => cargar())
 
   const toggle = (id) => {
     const c = items.find((x) => x.id === id)
     const ultimo_contacto = c.contactado_semana ? null : isoDate(hoy())
-    conexiones.update(id, { ultimo_contacto }).then((upd) => setItems((s) => s.map((x) => (x.id === id ? upd : x))))
+    conexiones.update(id, { ultimo_contacto }).then((upd) => setItems((s) => s.map((x) => (x.id === id ? upd : x)))).catch(() => cargar())
   }
 
   const del = (id) => {
     setItems((s) => s.filter((c) => c.id !== id))
-    conexiones.remove(id)
+    conexiones.remove(id).catch(() => cargar())
   }
 
-  const add = () => conexiones.create({ nombre: '', relacion: '', notas: '' }).then((c) => setItems((s) => [...s, c]))
+  const add = () => conexiones.create({ nombre: '', relacion: '', notas: '' }).then((c) => setItems((s) => [...s, c])).catch(() => {})
 
   const contactados = items.filter((c) => c.contactado_semana).length
 

@@ -58,34 +58,38 @@ export default function VistaAjustes() {
     cargarFrase()
   }, [])
 
-  const updObj = (id, field, val) => {
-    setObjs((s) => s.map((o) => (o.id === id ? { ...o, [field]: val } : o)))
-    objetivos.update(id, { [field]: val })
+  const updObjLocal = (id, field, val) => setObjs((s) => s.map((o) => (o.id === id ? { ...o, [field]: val } : o)))
+  const guardarObj = (id, field, val) => {
+    updObjLocal(id, field, val)
+    objetivos.update(id, { [field]: val }).catch(() => cargarObjs())
   }
   const delObj = (id) => {
     setObjs((s) => s.filter((o) => o.id !== id))
-    objetivos.remove(id)
+    objetivos.remove(id).catch(() => cargarObjs())
   }
-  const addObj = () => objetivos.create({ titulo: 'Nuevo objetivo', periodo: 'diario', categoria: 'mente', progreso: 0 }).then((o) => setObjs((s) => [...s, o]))
+  const addObj = () => objetivos.create({ titulo: 'Nuevo objetivo', periodo: 'diario', categoria: 'mente', progreso: 0 })
+    .then((o) => setObjs((s) => [...s, o]))
+    .catch(() => {})
 
   const updHabObjetivo = (h, dir) => {
     const objetivo = Math.max(h.paso, +(h.objetivo + dir * h.paso).toFixed(2))
     setHabs((s) => s.map((x) => (x.id === h.id ? { ...x, objetivo } : x)))
-    habitos.update(h.id, { objetivo })
+    habitos.update(h.id, { objetivo }).catch(() => cargarHabs())
   }
 
   const updHabLocal = (id, field, val) => setHabs((s) => s.map((x) => (x.id === id ? { ...x, [field]: val } : x)))
   const guardarHab = (id, field, val) => {
     setHabs((s) => s.map((x) => (x.id === id ? { ...x, [field]: val } : x)))
-    habitos.update(id, { [field]: val }).catch(() => {})
+    habitos.update(id, { [field]: val }).catch(() => cargarHabs())
   }
   const toggleActivoHab = (h) => {
     const activo = !h.activo
     setHabs((s) => s.map((x) => (x.id === h.id ? { ...x, activo } : x)))
-    habitos.update(h.id, { activo })
+    habitos.update(h.id, { activo }).catch(() => cargarHabs())
   }
   const addHab = () => habitos.create(HABITO_NUEVO)
     .then((h) => setHabs((s) => [...s, { ...h, objetivo: parseFloat(h.objetivo), paso: parseFloat(h.paso) }]))
+    .catch(() => {})
 
   const updFrase = (field, val) => setFraseData((f) => ({ ...f, [field]: val }))
   const guardarFrase = (field, val) => fraseApi.update({ [field]: val }).catch(() => {})
@@ -159,11 +163,11 @@ export default function VistaAjustes() {
           {objs && objs.length === 0 && <div className="empty">Sin objetivos. Crea el primero.</div>}
           {objs && objs.map((o) => (
             <div key={o.id} className="objetivo-row" style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: 8, alignItems: 'center' }}>
-              <input className="inp" value={o.titulo} onChange={(e) => updObj(o.id, 'titulo', e.target.value)} />
-              <select className="inp" style={{ width: 120 }} value={o.categoria} onChange={(e) => updObj(o.id, 'categoria', e.target.value)}>
+              <input className="inp" value={o.titulo} onChange={(e) => updObjLocal(o.id, 'titulo', e.target.value)} onBlur={(e) => guardarObj(o.id, 'titulo', e.target.value)} />
+              <select className="inp" style={{ width: 120 }} value={o.categoria} onChange={(e) => guardarObj(o.id, 'categoria', e.target.value)}>
                 {Object.entries(CATEGORIAS).map(([k, c]) => <option key={k} value={k}>{c.label}</option>)}
               </select>
-              <select className="inp" style={{ width: 110 }} value={o.periodo} onChange={(e) => updObj(o.id, 'periodo', e.target.value)}>
+              <select className="inp" style={{ width: 110 }} value={o.periodo} onChange={(e) => guardarObj(o.id, 'periodo', e.target.value)}>
                 {PERIODOS_OBJ.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
               <button className="icon-btn" style={{ width: 34, height: 34, border: 'none', background: 'transparent' }} onClick={() => delObj(o.id)}><Icon name="trash" size={15} /></button>

@@ -20,23 +20,24 @@ export default function AgendaDia({ fecha, onChange }) {
   if (!filas) return <div className="empty">Cargando agenda…</div>
 
   const upd = (id, field, val) => setFilas((fs) => fs.map((r) => (r.id === id ? { ...r, [field]: val } : r)))
-  const guardar = (id, field, val) => actividades.update(id, { [field]: val }).catch(() => {})
+  const guardar = (id, field, val) => actividades.update(id, { [field]: val }).catch(() => cargar())
 
   const toggle = (id) => {
     const r = filas.find((x) => x.id === id)
     const done = !r.done
     upd(id, 'done', done)
-    actividades.update(id, { done }).then(() => onChange?.())
+    actividades.update(id, { done }).then(() => onChange?.()).catch(() => cargar())
   }
 
   const del = (id) => {
     setFilas((fs) => fs.filter((x) => x.id !== id))
-    actividades.remove(id).then(() => onChange?.())
+    actividades.remove(id).then(() => onChange?.()).catch(() => cargar())
   }
 
   const add = () => {
     actividades.create({ fecha: f, hora: '12:00', actividad: 'Nueva actividad', done: false, notas: '' })
       .then((r) => { setFilas((fs) => [...fs, r]); onChange?.() })
+      .catch(() => {})
   }
 
   return (

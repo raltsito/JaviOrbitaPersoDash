@@ -37,12 +37,12 @@ export default function Accesos() {
   }
 
   const upd = (id, field, val) => setItems((s) => s.map((a) => (a.id === id ? { ...a, [field]: val } : a)))
-  const guardar = (id, field, val) => accesos.update(id, { [field]: val }).catch(() => {})
+  const guardar = (id, field, val) => accesos.update(id, { [field]: val }).catch(() => cargar())
   const del = (id) => {
     setItems((s) => s.filter((a) => a.id !== id))
-    accesos.remove(id)
+    accesos.remove(id).catch(() => cargar())
   }
-  const add = () => accesos.create(ACCESO_NUEVO).then((a) => setItems((s) => [...s, a]))
+  const add = () => accesos.create(ACCESO_NUEVO).then((a) => setItems((s) => [...s, a])).catch(() => {})
 
   return (
     <Card title="Accesos rápidos" sub="Tus herramientas, a un clic" icon="spark" iconColor="violet"

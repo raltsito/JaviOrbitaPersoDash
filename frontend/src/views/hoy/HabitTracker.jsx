@@ -48,21 +48,21 @@ export default function HabitTracker({ onChange }) {
   const setVal = (id, v) => {
     const val = Math.max(0, +v.toFixed(2))
     setItems((hs) => hs.map((h) => (h.id === id ? { ...h, hoy: val } : h)))
-    registros.upsert({ habito: id, fecha: f, valor: val }).then(() => onChange?.())
+    registros.upsert({ habito: id, fecha: f, valor: val }).then(() => onChange?.()).catch(() => cargar())
   }
 
-  const addAuto = () => autocuidado.create({ fecha: f, texto: '', done: false }).then((a) => setAuto((s) => [...s, a]))
+  const addAuto = () => autocuidado.create({ fecha: f, texto: '', done: false }).then((a) => setAuto((s) => [...s, a])).catch(() => {})
   const updAuto = (id, texto) => setAuto((s) => s.map((a) => (a.id === id ? { ...a, texto } : a)))
-  const guardarAuto = (id, texto) => autocuidado.update(id, { texto }).catch(() => {})
+  const guardarAuto = (id, texto) => autocuidado.update(id, { texto }).catch(() => cargar())
   const toggleAuto = (id) => {
     const a = auto.find((x) => x.id === id)
     const done = !a.done
     setAuto((s) => s.map((x) => (x.id === id ? { ...x, done } : x)))
-    autocuidado.update(id, { done })
+    autocuidado.update(id, { done }).catch(() => cargar())
   }
   const delAuto = (id) => {
     setAuto((s) => s.filter((x) => x.id !== id))
-    autocuidado.remove(id)
+    autocuidado.remove(id).catch(() => cargar())
   }
 
   return (

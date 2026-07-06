@@ -7,7 +7,7 @@ import { accesos } from '../../api.js'
 
 const ICONOS_ACCESO = ['ai', 'spark', 'music', 'play', 'design', 'calendar', 'fire', 'hoy', 'analisis', 'habitos', 'conexiones', 'objetivos', 'ajustes', 'logout', 'print', 'edit']
 
-const ACCESO_NUEVO = { nombre: 'Nuevo acceso', url: 'https://', icono: 'spark', color: '#7c5cfc' }
+const ACCESO_NUEVO = { nombre: 'Nuevo acceso', url: 'https://example.com', icono: 'spark', color: '#7c5cfc' }
 
 export default function Accesos() {
   const [items, setItems] = useState(null)

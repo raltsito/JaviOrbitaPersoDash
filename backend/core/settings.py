@@ -15,6 +15,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
+
+def env_list(name, default=""):
+    raw = os.environ.get(name) or default
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
 # Build de Vite (frontend/dist) — no existe en dev si no se corrió `npm run build`
 FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
 
@@ -22,9 +27,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key")
 
 DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
 
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+CSRF_TRUSTED_ORIGINS = env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8001,http://127.0.0.1:8001",
+)
 
 
 # Aplicaciones
@@ -144,7 +152,10 @@ REST_FRAMEWORK = {
 # CORS — solo necesario en desarrollo (Vite en :5173); en producción
 # el frontend se sirve desde el mismo dominio.
 
-CORS_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",") if o.strip()]
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+)
 CORS_ALLOW_CREDENTIALS = True
 
 

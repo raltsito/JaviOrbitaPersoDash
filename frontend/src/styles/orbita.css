@@ -334,7 +334,7 @@ input.inp::placeholder, textarea.inp::placeholder { color: var(--faint); }
   .app.collapsed .nav-item .nav-badge { display: none; }
   .app.collapsed .streak { padding: 10px; justify-content: center; }
   .app.collapsed .streak > div { display: none; }
-  .sidebar { position: relative; }
+  .sidebar { position: sticky; }
 }
 
 /* tema espacial: Ã³rbitas decorativas en topbar/frase (toggle via body.space) */
@@ -342,12 +342,16 @@ input.inp::placeholder, textarea.inp::placeholder { color: var(--faint); }
 body.space .orbit-deco { display: block; }
 
 /* ===================== MODAL ===================== */
+body.modal-open { overflow: hidden; }
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 80;
   background: rgba(0,0,0,.45);
   display: grid; place-items: center;
   padding: 20px;
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
+html[data-theme="claro"] .modal-backdrop { background: transparent; }
 .modal {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   box-shadow: var(--shadow); width: 100%; max-width: 480px; max-height: 86vh;

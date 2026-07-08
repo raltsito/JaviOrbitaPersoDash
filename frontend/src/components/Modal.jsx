@@ -1,14 +1,19 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Icon from './Icon.jsx'
 
 export default function Modal({ title, onClose, children }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.body.classList.add('modal-open')
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    return () => {
+      document.body.classList.remove('modal-open')
+      document.removeEventListener('keydown', onKey)
+    }
   }, [onClose])
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-h">
@@ -17,6 +22,7 @@ export default function Modal({ title, onClose, children }) {
         </div>
         <div className="modal-body">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

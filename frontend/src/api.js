@@ -8,8 +8,10 @@ function getCookie(name) {
   return m ? decodeURIComponent(m[1]) : null
 }
 
-async function ensureCsrf() {
-  if (!getCookie('csrftoken')) await fetch('/api/auth/csrf/')
+async function ensureCsrf(force = false) {
+  if (force || !getCookie('csrftoken')) {
+    await fetch('/api/auth/csrf/', { credentials: 'same-origin', cache: 'no-store' })
+  }
   return getCookie('csrftoken')
 }
 
@@ -21,16 +23,48 @@ export class ApiError extends Error {
   }
 }
 
+async function parseResponse(res) {
+  if (res.status === 204) return null
+
+  const contentType = res.headers.get('content-type') || ''
+  if (contentType.includes('application/json')) {
+    return res.json().catch(() => null)
+  }
+
+  const text = await res.text().catch(() => '')
+  if (!text) return null
+  const title = text.match(/<title[^>]*>(.*?)<\/title>/i)?.[1]
+  const detail = (title || text)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return { detail: detail || `Error ${res.status}` }
+}
+
+async function send(url, opts) {
+  try {
+    return await fetch(url, opts)
+  } catch {
+    throw new ApiError(0, { detail: 'No se pudo conectar con el backend local. Revisa que Django siga corriendo en el puerto 8001.' })
+  }
+}
+
 async function request(method, url, body) {
-  const opts = { method, headers: {} }
+  const opts = { method, headers: {}, credentials: 'same-origin' }
   if (body !== undefined) {
     opts.headers['Content-Type'] = 'application/json'
     opts.body = JSON.stringify(body)
   }
   if (method !== 'GET') opts.headers['X-CSRFToken'] = await ensureCsrf()
 
-  const res = await fetch(url, opts)
-  const data = res.status === 204 ? null : await res.json().catch(() => null)
+  let res = await send(url, opts)
+  let data = await parseResponse(res)
+  const csrfFailed = res.status === 403 && typeof data?.detail === 'string' && data.detail.toLowerCase().includes('csrf')
+  if (method !== 'GET' && csrfFailed) {
+    opts.headers['X-CSRFToken'] = await ensureCsrf(true)
+    res = await send(url, opts)
+    data = await parseResponse(res)
+  }
   if (!res.ok) throw new ApiError(res.status, data)
   return data
 }
